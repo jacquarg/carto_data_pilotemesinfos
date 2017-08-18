@@ -1,0 +1,93 @@
+/* Layout
+
+@media (max-width: 992) and (min-width: 750)
+*/
+
+html {
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-size: 14px; 
+  color: #666;   
+}
+
+.printcontainer {
+  height: 210mm;
+  width: 297mm;
+  box-sizing: border-box;
+  padding: 5mm 0 0 5mm;
+  
+}
+
+.ideationcard {
+  position: relative;
+  width: 71mm;
+  height: 100mm;
+  border: 0.5px solid #eee;
+  box-sizing: border-box;
+  padding: 5mm;
+  float: left;
+}
+
+.typology {
+  color: white;
+  font-family: "Grand Hotel", cursive;
+  font-size: 8mm;
+  padding: 2mm;
+}
+
+.name {
+  margin: 5mm 0 5mm 0;
+  text-align: center;
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  color: #555;
+  height: 25mm;
+  width: 61mm;
+}
+.name span {
+}
+
+.description {
+  width: 61mm;
+  height: 30mm;
+  font-size: 4mm;
+  line-height: 5mm;
+}
+
+.holder {
+  position: absolute;
+  right: 5mm;
+  bottom: 7mm;
+  height: 8mm;
+  
+}
+
+.frequency {
+  position: absolute;
+  bottom: 7mm;
+  left: 5mm;
+}
+.frequency span {
+  font-size: 12px;
+  color: #999;
+}
+
+.frequency img {
+  width: 6mm;
+  color: #999;
+  padding-right: 1mm
+}
+
+
+
+.index {
+  position: absolute;
+  right: 6mm;
+  top: 6mm;
+  color: white;
+  font-size: 8px;
+}
+@page {
+  margin: 0mm;
+
+}

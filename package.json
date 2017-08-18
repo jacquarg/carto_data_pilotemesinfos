@@ -1,0 +1,21 @@
+{
+  "name": "carto_data_pilotemesinfos",
+  "version": "2.0.0",
+  "description": "La carto des données du pilote MesInfos.",
+  "scripts": {
+    "watch": "pug --client --name-after-file --watch www/scripts/templates/*.pug",
+    "build": "npm run build:templates",
+    "deploy": "node scripts/deploy_mesinfos_datapilote.js",
+
+    "build:templates": "pug --client --no-debug --name-after-file www/scripts/templates/*.pug"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "ftp-deploy": "^1.2.2",
+    "glob": "^7.1.2",
+    "jsonld": "0.4.12",
+    "moment": "^2.18.1",
+    "pug": "^2.0.0-rc.3",
+    "pug-cli": "^1.0.0-alpha6"
+  }
+}
