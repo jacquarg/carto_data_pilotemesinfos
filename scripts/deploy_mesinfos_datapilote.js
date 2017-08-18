@@ -4,8 +4,8 @@
 // usage : npm run deploymi -- USERNAME PASSWORD
 //
 // copy the content of source (in the current path), to destination (on the distant ftp path)
-var source = __dirname + "/../build";
-var destination = "/www/WordPress3/cartographies/wikiapi/";
+var source = __dirname + "/../www/";
+var destination = "/www/WordPress3/cartographies/datapilote/";
 
 var FtpDeploy = require('ftp-deploy');
 var ftpDeploy = new FtpDeploy();
