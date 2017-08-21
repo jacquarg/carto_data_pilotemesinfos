@@ -1,75 +1,6 @@
 'use-strict'
 
 ///////////////////////////////////////////////////////////
-// libs
-
-
-const PLD = {}
-
-
-PLD.getItem = (item, allItems) => {
-  // TODO : clean this !
-
-  let attrs = {}
-  if (typeof item === 'string') { // it's an id !
-    attrs = allItems[item]
-  } else {
-    attrs = allItems[item['@id']]
-  }
-
-  return new MetaObject(attrs)
-  // return attrs
-}
-
-PLD.isType = (item, type) => {
-  if (!(item && item['@type'])) { return false }
-
-  const typeProp = item['@type']
-  return  typeProp === type || (typeProp instanceof Array && typeProp.indexOf(type) !== -1)
-}
-
-PLD.mapOnObject = (objects, fun) => {
-  if (objects instanceof Array) {
-    return objects.map(fun)
-  }
-  return fun(objects)
-}
-
-PLD.testOnObject = (objects, test) => {
-  if (objects && objects instanceof Array) {
-    return objects.some(test);
-  } else {
-    return test(objects);
-  }
-
-}
-
-PLD.forEachOnTreeOfPredicates = (fun , item, props, allItems) => {
-  item = PLD.getItem(item, allItems)
-  fun(item)
-  props.forEach((prop) => {
-    if (item[prop]) {
-      item[prop] = PLD.mapOnObject(item[prop], (value) => PLD.forEachOnTreeOfPredicates(fun, value, props, allItems))
-    }
-  })
-
-  return item
-}
-
-PLD.fillTreeForPredicates = (item, props, allItems) => {
-  PLD.forEachOnTreeOfPredicates(() => undefined, item, props, allItems)
-  return item
-}
-//   item = PLD.getItem(item, allItems)
-//   props.forEach((prop) => {
-//     if (item[prop]) {
-//       item[prop] = PLD.mapOnObject(item[prop], (value) => PLD.fillTreeForProps(value, props, allItems))
-//     }
-//   })
-//
-//   return item
-// }
-
 
 const U = {}
 
@@ -181,9 +112,12 @@ M.prepare = () => {
     $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/indexes/mesinfos_datasets.json')
   ])
   .then((res) => {
-    M.items = res[0]
+    PLD.allItems = res[0]
     M.datasets = res[1]['schema:itemListElement']
-      .map(item => PLD.fillTreeForPredicates(item, ['hasProperty', 'hasOptionalProperty', 'items'], M.items))
+      .map(item => PLD.fillTreeForPredicates(item, ['hasProperty', 'hasOptionalProperty', 'items']))
+
+    PLD.mapClassOnType['q:Q102'] = MetaObject
+    PLD.mapClassOnType['object'] = MetaObject
   })
 }
 
@@ -216,7 +150,7 @@ M.attachEvents = () => {
 
 M.render = () => {
   const byTypology = U.groupBy(
-    M.datasets.map((id) => PLD.getItem(id, M.items)).sort((a, b) => a.label < b.label ? -1 : 1 ), 'typology')
+    M.datasets.map((id) => PLD.getItem(id)).sort((a, b) => a.label < b.label ? -1 : 1 ), 'typology')
 
   let index = 0
   Object.keys(byTypology).sort().forEach((typology) => {
@@ -241,7 +175,7 @@ M.treeHighlight = (q) => {
       if (q(item)) {
         highlight.add(item['@id'])
       }
-    }), dataset, ['items', 'hasProperty', 'hasOptionalProperty'], M.items)
+    }), dataset, ['items', 'hasProperty', 'hasOptionalProperty'])
   })
 
   return highlight
