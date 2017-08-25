@@ -58,7 +58,7 @@ class MetaObject {
     const data = $.extend({}, this)
     data.id = data['@id']
     data.typologyColor = typologiesColors[data.typology]
-
+    data.updateFrequency = moment.duration(data.updateFrequency).humanize()
     const flatPropTree = (item, prefix = '') => {
       return item.allProperties
       .map(prop => PLD.getItem(prop, M.items)).reduce((res, prop) => {
@@ -107,9 +107,13 @@ class MetaObject {
 const M = {}
 
 M.prepare = () => {
+
+
   return Promise.all([
     $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/items.json'),
+    // $.getJSON('http://localhost:8081/items.json'),
     $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/indexes/mesinfos_datasets.json')
+    // $.getJSON('http://localhost:8081/indexes/mesinfos_datasets.json')
   ])
   .then((res) => {
     PLD.allItems = res[0]

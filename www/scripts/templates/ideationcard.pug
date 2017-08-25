@@ -7,6 +7,10 @@
   .frequency
     img(src='img/creationcard/frequency_gauge.svg')
     span= updateFrequency
-    
+
   if index
-  .index= index
+    .index= index
+
+  if availability =='soon'
+    .soon
+      div disponible prochainement

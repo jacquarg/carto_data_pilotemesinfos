@@ -205,6 +205,25 @@ li.subject {
 }
 
 
+.ideationcard .soon {
+  background: #999;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top:0;
+  left: 0;
+  opacity: 0.6;
+  
+}
+.ideationcard .soon > div {
+  transform: rotate(45deg);
+  position: absolute;
+  left: 0%;
+  top: 200px;
+  font-size: 35px;
+  color: black;
+  text-align: center;
+}
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
