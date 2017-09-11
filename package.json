@@ -6,7 +6,9 @@
     "watch": "pug --client --name-after-file --watch www/scripts/templates/*.pug",
     "build": "npm run build:templates",
     "deploy": "node scripts/deploy_mesinfos_datapilote.js",
+    "update": "npm run build:fetchdep",
     "build:templates": "pug --client --no-debug --name-after-file www/scripts/templates/*.pug",
+    "update:prototype-ld": "wget -O www/scripts/vendors/prototype-ld.js https://raw.githubusercontent.com/jacquarg/prototype-ld/master/index.js",
     "build:fetchdep": "sh scripts/fetch_dependencies.sh"
   },
   "dependencies": {

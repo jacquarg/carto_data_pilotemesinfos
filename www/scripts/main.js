@@ -45,7 +45,6 @@ const typologiesColors = {
   // label:
   "Loisir":  // color:
   {r: 0x2C, g: 0x85, b: 0x6D},
-
 }
 
 // prototype for metaobject deserialized from json-ld read-only data.
@@ -57,7 +56,7 @@ class MetaObject {
   serializeData() {
     const data = $.extend({}, this)
     data.id = data['@id']
-    data.typologyColor = typologiesColors[data.typology]
+    data.typologyColor = typologiesColors[data.typology] || {r: 0xFF, g: 0xFF, b: 0xFF},
     data.updateFrequency = moment.duration(data.updateFrequency).humanize()
     const flatPropTree = (item, prefix = '') => {
       return item.allProperties
@@ -107,21 +106,29 @@ class MetaObject {
 const M = {}
 
 M.prepare = () => {
-
-
   return Promise.all([
     $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/items.json'),
     // $.getJSON('http://localhost:8081/items.json'),
-    $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/indexes/mesinfos_datasets.json')
-    // $.getJSON('http://localhost:8081/indexes/mesinfos_datasets.json')
+    $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/indexes/mesinfos_datasets.json'),
+    $.getJSON('http://mesinfos.fing.org/cartographies/wikiapi/indexes/cozy_datasets.json'),
   ])
   .then((res) => {
     PLD.allItems = res[0]
-    M.datasets = res[1]['schema:itemListElement']
-      .map(item => PLD.fillTreeForPredicates(item, ['hasProperty', 'hasOptionalProperty', 'items']))
+
+    const addList = (listItem) => {
+      // listItem['schema:itemListElement'] = listItem['schema:itemListElement']
+      // .map(item => PLD.fillTreeForPredicates(item, ['hasProperty', 'hasOptionalProperty', 'items']))
+      PLD.allItems[listItem['@id']] = listItem
+    }
+    addList(res[1])
+    addList(res[2])
+
 
     PLD.mapClassOnType['q:Q102'] = MetaObject
     PLD.mapClassOnType['object'] = MetaObject
+
+    M.datasets = PLD.listInstanceOf('q:Q102')
+    M.updateFilter()
   })
 }
 
@@ -132,24 +139,8 @@ M.attachEvents = () => {
     .toggleClass('expanded')
   })
 
-  $('#word_filter').on('input', (ev) => {
-    let q = $('#word_filter').val()
-    let highlights = null
-    if (!q) {
-      highlights = M.datasets
-    } else {
-      q = q.toLowerCase()
-      highlights = M.treeHighlight((item) => Object.values(item).some((value) => PLD.testOnObject(value,
-        (v) => {
-          if (typeof v !== "string") return false
-          return v.toLowerCase().indexOf(q) !== -1
-        }))
-      )
-
-    }
-    $('.subject').toggleClass('active', false)
-    highlights.forEach((id) =>  $(`[id='${id}']`).toggleClass('active', true))
-  })
+  $('#word_filter').on('input', M.updateFilter)
+  $('input:radio').change(M.updateFilter)
 }
 
 M.render = () => {
@@ -157,6 +148,9 @@ M.render = () => {
     M.datasets.map((id) => PLD.getItem(id)).sort((a, b) => a.label < b.label ? -1 : 1 ), 'typology')
 
   let index = 0
+  byTypology['zAutre'] = byTypology[undefined]
+  delete byTypology[undefined]
+
   Object.keys(byTypology).sort().forEach((typology) => {
     const typologyElem = $(typologyTemplate({ typology }))
     $('#documentation').append(typologyElem)
@@ -170,11 +164,32 @@ M.render = () => {
   $('.name').textfill({ maxFontPixels: 30, });
 }
 
+M.updateFilter = () => {
+  let q = $('#word_filter').val()
+  let listItem = $('input:radio:checked').val() == 'cozycloud' ? 'q:Q524' : 'q:Q143'
+
+  let highlights = PLD.getItem(listItem)['schema:itemListElement']
+  if (q) {
+    q = q.toLowerCase()
+    highlights = M.treeHighlight((item) => Object.values(item).some((value) => PLD.testOnObject(value,
+      (v) => {
+        if (typeof v !== "string") return false
+        return v.toLowerCase().indexOf(q) !== -1
+      }))
+    , highlights)
+  }
+
+  console.log(highlights)
+  $('.subject').toggleClass('active', false)
+  highlights.forEach((id) =>  $(`[id='${id}']`).toggleClass('active', true))
+}
+
+
 // Return a set of item ids to highlight
-M.treeHighlight = (q) => {
+M.treeHighlight = (q, items) => {
   const highlight = new Set()
 
-  M.datasets.forEach((dataset) => {
+  items.forEach((dataset) => {
     PLD.forEachOnTreeOfPredicates((item => {
       if (q(item)) {
         highlight.add(item['@id'])
@@ -187,4 +202,5 @@ M.treeHighlight = (q) => {
 
 
 M.prepare()
-.then(() => M.render())
+.then(M.render)
+.then(M.updateFilter)
